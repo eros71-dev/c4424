@@ -22,9 +22,9 @@ end
 local function on_classic_mode_command(msg)
     msg = string.lower(msg)
     if msg == "on" then
-       djui_chat_message_create("Classic mode enabled.")
-       classicMode = true
-       mod_storage_save_bool("classicMode", classicMode)
+        djui_chat_message_create("Classic mode enabled.")
+        classicMode = true
+        mod_storage_save_bool("classicMode", classicMode)
     elseif msg == "off" then
         djui_chat_message_create("Classic mode disabled.")
         classicMode = false
@@ -39,8 +39,9 @@ local function on_classic_mode_command(msg)
         djui_chat_message_create("Parameter must be ON, OFF, or info.")
     end
     return true
- end
+end
 
 -- Hooks
 
-hook_chat_command("classic_mode", "- [on|off|info] Changes some settings to make the game more \"nostalgic\".", on_classic_mode_command)
+hook_chat_command("classic_mode", "- [on|off|info] Changes some settings to make the game more \"nostalgic\".",
+    on_classic_mode_command)

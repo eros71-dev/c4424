@@ -1,5 +1,6 @@
--- name: c4424
+-- name: C4424
 -- description: idk yet
+-- deluxe: true
 
 --[[
 
@@ -30,17 +31,20 @@ no M / emblems sometimes
 
 (If you want to credit yourself for the stuff you've added, you can do so below like this)
 Dev:
-Feature
+Feature1
+Feature2
+    <empty line>
+
 ----------------
 
 eros71:
 Watermarks
+Classic mode
 
-Dev2:
-Feature1
+(Next dev here)
 ]]--
 
-if SM64COOPDX_VERSION == nil then djui_popup_create_global("This mod requires SM64Coop DX to work properly.", 2) return end
+if not USING_COOPDX then djui_popup_create_global("This mod requires SM64Coop DX to work properly.", 2) end
 -- afaik things like lua texture swapping require it, not sure if this line has to be in each lua file or just main -eros71
 
 
@@ -50,4 +54,5 @@ local function on_reset_mod_save_command()
     return true
 end
 
-hook_chat_command("reset_c4424_data", "- This command will ERASE ALL c4424 data! Use with caution.", on_reset_mod_save_command)
+hook_chat_command("reset_c4424_data", "- This command will ERASE ALL c4424 data! Use with caution.",
+    on_reset_mod_save_command)

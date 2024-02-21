@@ -17,18 +17,18 @@ local function on_hud_render()
     if watermarkType == 1 then
         djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
     elseif watermarkType == 2 then
-        djui_hud_render_texture(bandicamWatermark, (width/2)-128, -4, 1, 1)
+        djui_hud_render_texture(bandicamWatermark, (width / 2) - 128, -4, 1, 1)
     end
 end
 
 
 local function on_watermark_command(msg)
     if msg == "0" then
-       djui_chat_message_create("Watermark disabled.")
-       watermarkType = 0
+        djui_chat_message_create("Watermark disabled.")
+        watermarkType = 0
     elseif msg == "1" then
-       djui_chat_message_create("Watermark set to \"Unregistered HyperCam 2\".")
-       watermarkType = 1
+        djui_chat_message_create("Watermark set to \"Unregistered HyperCam 2\".")
+        watermarkType = 1
     elseif msg == "2" then
         djui_chat_message_create("Watermark set to \"Bandicam\".")
         watermarkType = 2
@@ -50,7 +50,7 @@ local function on_watermark_command(msg)
     end
     mod_storage_save_number("watermarkType", watermarkType)
     return true
- end
+end
 
 -- Hooks
 
