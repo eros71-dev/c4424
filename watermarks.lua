@@ -2,6 +2,7 @@
 local hypercamWatermark = get_texture_info("hypercam_watermark")
 local bandicamWatermark = get_texture_info("bandicam_watermark")
 
+-- Usual mod storage stuff
 if (mod_storage_load_number("firstRunDone") == 0) then
     mod_storage_save_number("firstRunDone", 1)
     mod_storage_save_number("watermarkType", 1)

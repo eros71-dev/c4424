@@ -1,5 +1,5 @@
 -- name: C4424
--- description: idk yet
+-- description: Enough creepypastas, give me a comfortingpasta instead.\n\nComfortingpasta? Soothingpasta?...\n\n\nUnscarypasta?\n\nI don't know, just bring me back to the good old days.\n\nBy lots of people, credits in the code.
 -- deluxe: true
 
 --[[
@@ -7,7 +7,7 @@
 Possible features, name indicates who suggested it, not who implemented it:
 
     Agent X
-unregistered hypercam // DONE
+unregistered hypercam
 G_TF_BILERP (texture filtered) HUD
 stretched viewport? ("widescreen")
 shadow textures that are just completely empty
@@ -20,8 +20,10 @@ fucked up vertices
 
     eros71
 broken animations
-(bandicam variant for watermark?) // DONE
+(bandicam variant for watermark?)
 z-fighting
+funny yt background music?
+movie maker transitions between levels?
 
     SonicDark
 texture corruption / bleeding

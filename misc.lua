@@ -1,4 +1,6 @@
 -- Classic mode
+
+-- Usual mod storage stuff
 if (mod_storage_load_number("firstRunDone") == 0) then
     mod_storage_save_number("firstRunDone", 1)
     mod_storage_save_bool("classicMode", true)
