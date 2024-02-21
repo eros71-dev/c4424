@@ -45,3 +45,6 @@ end
 
 hook_chat_command("classic_mode", "- [on|off|info] Changes some settings to make the game more \"nostalgic\".",
     on_classic_mode_command)
+
+-- Textures (names in bin folder, .c files)
+--texture_override_set("outside_09001000", get_texture_info("empty")) -- test thing
