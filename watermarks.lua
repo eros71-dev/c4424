@@ -6,7 +6,6 @@ local bandicamWatermark = get_texture_info("bandicam_watermark")
 local function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_DJUI)
     local width = djui_hud_get_screen_width()
-    local height = djui_hud_get_screen_height()
     if watermarkType == 1 then
         djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
     elseif watermarkType == 2 then
