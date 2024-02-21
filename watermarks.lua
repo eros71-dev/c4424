@@ -1,8 +1,16 @@
-local watermarkType = 1
+-- Vars
 local hypercamWatermark = get_texture_info("hypercam_watermark")
 local bandicamWatermark = get_texture_info("bandicam_watermark")
 
--- HUD / UI
+if (mod_storage_load_number("firstRunDone") == 0) then
+    mod_storage_save_number("firstRunDone", 1)
+    mod_storage_save_number("watermarkType", 1)
+end
+
+local watermarkType = tonumber(mod_storage_load("watermarkType"))
+
+-- Funcs
+
 local function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_DJUI)
     local width = djui_hud_get_screen_width()
@@ -18,23 +26,33 @@ local function on_watermark_command(msg)
     if msg == "0" then
        djui_chat_message_create("Watermark disabled.")
        watermarkType = 0
-       return true
     elseif msg == "1" then
        djui_chat_message_create("Watermark set to \"Unregistered HyperCam 2\".")
        watermarkType = 1
-       return true
     elseif msg == "2" then
         djui_chat_message_create("Watermark set to \"Bandicam\".")
         watermarkType = 2
-        return true
-    elseif msg == "" then
-        djui_chat_message_create("[0|1|2] 0 = disabled, 1 = Hypercam, 2 = Bandicam.")
-        return true
+    elseif msg == "info" then
+        -- Watermark type is set to 0 (disabled), 1 (Hypercam), or 2 (Bandicam)."
+        local watermarkName = "Disabled"
+        if watermarkType == 1 then
+            watermarkName = "Unregistered HyperCam 2"
+        elseif watermarkType == 2 then
+            watermarkName = "Bandicam"
+        end
+        djui_chat_message_create("Watermark type is set to " .. watermarkType .. " (" .. watermarkName .. ").")
     else
         djui_chat_message_create("Watermark type must be 0, 1, or 2.")
-        return true
     end
+    if watermarkType == nil then
+        watermarkType = 1
+        djui_chat_message_create("Watermark type was nil, setting to 1. Report to devs if seen.")
+    end
+    mod_storage_save_number("watermarkType", watermarkType)
+    return true
  end
 
+-- Hooks
+
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
-hook_chat_command("watermark", "[0|1|2] 0 = disabled, 1 = Hypercam, 2 = Bandicam.", on_watermark_command)
+hook_chat_command("watermark", "- [0|1|2|info] 0 = disabled, 1 = Hypercam, 2 = Bandicam.", on_watermark_command)
