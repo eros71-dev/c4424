@@ -20,17 +20,24 @@ end
 
 
 local function on_classic_mode_command(msg)
+    msg = string.lower(msg)
     if msg == "on" then
-       djui_chat_message_create("Watermark disabled.")
+       djui_chat_message_create("Classic mode enabled.")
        classicMode = true
+       mod_storage_save_bool("classicMode", classicMode)
     elseif msg == "off" then
+        djui_chat_message_create("Classic mode disabled.")
         classicMode = false
+        mod_storage_save_bool("classicMode", classicMode)
     elseif msg == "info" then
-        djui_chat_message_create("Classic mode is " .. classicMode.. ".")
+        local modeText = "disabled"
+        if classicMode then
+            modeText = "enabled"
+        end
+        djui_chat_message_create("Classic mode is " .. modeText .. ".")
     else
-        djui_chat_message_create("Parameter must be \"ON\" or \"OFF\".")
+        djui_chat_message_create("Parameter must be ON, OFF, or info.")
     end
-    mod_storage_save_bool("classicMode", classicMode)
     return true
  end
 
