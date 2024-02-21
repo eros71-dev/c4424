@@ -41,6 +41,8 @@ eros71:
 Watermarks
 Classic mode
 
+SonicDark:
+no emblems
 (Next dev here)
 ]]--
 
