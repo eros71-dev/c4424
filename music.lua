@@ -98,7 +98,14 @@ function on_play_yt_music_command(msg)
     return true
 end
 
+local function update()
+    if currentSong ~= nil and get_current_background_music() ~= 0 then
+        set_background_music(0, 0, 0)
+    end
+end
+
 hook_event(HOOK_ON_LEVEL_INIT, on_level_init)
+hook_event(HOOK_UPDATE, update)
 hook_chat_command("show_song_name", "- [on|off] Toggles the display of the currently playing song.", on_song_name_command)
 hook_chat_command("play_yt_music",
     "- [on|off] Plays a random song from a list of overused (copyright-free) YT background music.",
