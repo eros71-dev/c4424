@@ -25,7 +25,7 @@ local function on_hud_render()
         if watermarkType == 1 then
             djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
         elseif watermarkType == 2 then
-            djui_hud_render_texture(bandicamWatermark, (width / 2) - 128 * 3, -4, 1, 1)
+            djui_hud_render_texture(bandicamWatermark, (width / 2) - 324, -4, 1, 1)
         end
     end
 end
