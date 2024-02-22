@@ -56,23 +56,6 @@ local function on_level_init()
     emblemFunc()
 end
 
---[[local no_emblems = get_texture_info("no_emblems")
-    local no_emblemswl = get_texture_info("no_emblemswl")
-    for i = 1, #emblems do
-        if msg == "off" then
-            texture_override_set(emblems[i], no_emblems)
-        elseif msg == "on" then
-            texture_override_reset(emblems[i])
-        end
-    end
-    for i = 1, #emblemswl do
-        if msg == "off" then
-            texture_override_set(emblemswl[i], no_emblemswl)
-        elseif msg == "on" then
-            texture_override_reset(emblemswl[i])
-        end
-    end]]--
-
 
 hook_chat_command('emblems', "- [on|off] Disable the character emblems like in the old machinimas", on_no_emblems_command)
 hook_event(HOOK_ON_LEVEL_INIT, on_level_init)
