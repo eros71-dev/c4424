@@ -1,5 +1,5 @@
 local currentSong = nil
-local chancePercent = 5
+local chancePercent = 15
 
 
 -- Usual mod storage stuff
