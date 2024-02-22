@@ -15,10 +15,18 @@ local watermarkType = tonumber(mod_storage_load("watermarkType"))
 local function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_DJUI)
     local width = djui_hud_get_screen_width()
-    if watermarkType == 1 then
-        djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
-    elseif watermarkType == 2 then
-        djui_hud_render_texture(bandicamWatermark, (width / 2) - 128, -4, 1, 1)
+    if gfx_get_adjust_for_aspect_ratio() then
+        if watermarkType == 1 then
+            djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
+        elseif watermarkType == 2 then
+            djui_hud_render_texture(bandicamWatermark, (width / 2) - 128, -4, 1, 1)
+        end
+    else
+        if watermarkType == 1 then
+            djui_hud_render_texture(hypercamWatermark, 0, 0, 1, 1)
+        elseif watermarkType == 2 then
+            djui_hud_render_texture(bandicamWatermark, (width / 2) - 128 * 3, -4, 1, 1)
+        end
     end
 end
 

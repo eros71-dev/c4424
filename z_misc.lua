@@ -1,6 +1,7 @@
 -- If mario's health is less than it just was, play sound
 local mamaSound = audio_stream_load("mama.mp3")
 local mamaSoundChance = 15
+local pitchMultiplier = 1.1
 
 -- Classic mode
 
@@ -77,6 +78,8 @@ function other_classic_mode_shits()
         shadowFunc()
 
         -- Make widescreen act like Jabo's plugin, force 30fps (or less), and other settings
+        smlua_audio_utils_set_note_freq_scale(pitchMultiplier)
+        gfx_enable_adjust_for_aspect_ratio(false)
 
         -- Force og cam
         camera_config_enable_analog_cam(false)
@@ -94,6 +97,8 @@ function other_classic_mode_shits()
         shadowFunc()
         
         -- Reset widescreen, fps, and other settings
+        smlua_audio_utils_set_note_freq_scale(1)
+        gfx_enable_adjust_for_aspect_ratio(true)
 
         -- Reset cam
         camera_config_enable_analog_cam(prefersAnalogCam)
@@ -102,6 +107,10 @@ function other_classic_mode_shits()
         -- Reset window name and icon
 
     end
+end
+
+if classicMode then
+    other_classic_mode_shits()
 end
 
 local function on_level_init()
