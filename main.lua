@@ -13,8 +13,8 @@ local SOUND_CUSTOM_MAMA = audio_sample_load("mama.mp3")
 
 HUD_DISPLAY_FLAGS_C4424 = HUD_DISPLAY_FLAGS_CAMERA_AND_POWER | HUD_DISPLAY_FLAGS_POWER
 
-c4424Enabled = false
-local watermarkTex = TEX_HYPERCAM
+--c4424Enabled = false
+watermarkTex = TEX_HYPERCAM
 
 local sSavedSettings = {
     bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
@@ -24,9 +24,23 @@ local sSavedSettings = {
     fixVanishFloors = gLevelValues.fixVanishFloors,
     pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
     respawnShellBoxes = gBehaviorValues.RespawnShellBoxes,
+    enablePlayerList = gServerSettings.enablePlayerList,
+    enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
     freeCam = camera_config_is_free_cam_enabled(),
     noteFreq = smlua_audio_utils_get_note_freq_scale()
 }
+
+-- Default settings
+c4424Enabled = true
+hideEmblems = true
+hideShadows = true
+playMusic = true
+watermarkValue = 1
+stretchWidescreen = true
+highPitch = false
+forceMario = true
+
+local shouldPlayMamaSound = true
 
 local function update_saved_settings()
     sSavedSettings = {
@@ -37,6 +51,8 @@ local function update_saved_settings()
         fixVanishFloors = gLevelValues.fixVanishFloors,
         pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
         respawnShellBoxes = gBehaviorValues.RespawnShellBoxes,
+        enablePlayerList = gServerSettings.enablePlayerList,
+        enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
         freeCam = camera_config_is_free_cam_enabled(),
         noteFreq = smlua_audio_utils_get_note_freq_scale()
     }
@@ -55,48 +71,67 @@ local function toggle_c4424()
         gServerSettings.bubbleDeath = false
         gServerSettings.nametags = false
         gServerSettings.stayInLevelAfterStar = 0
+        gServerSettings.enablePlayerList = false
+        gServerSettings.enablePlayersInLevelDisplay = false
 
         gLevelValues.fixVanishFloors = false
         gLevelValues.pauseExitAnywhere = false
         gBehaviorValues.RespawnShellBoxes = false
 
-        camera_config_enable_free_cam(false)
+        --camera_config_enable_free_cam(false) -- I'll be honest this may be a bit annoying later on
 
-        smlua_audio_utils_set_note_freq_scale(1.02)
+        handle_classic_music()
+
+        smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     else
         gServerSettings.bouncyLevelBounds = sSavedSettings.bouncyLevelBounds
         gServerSettings.bubbleDeath = sSavedSettings.bubbleDeath
         gServerSettings.nametags = sSavedSettings.nametags
         gServerSettings.stayInLevelAfterStar = sSavedSettings.stayInLevelAfterStar
+        gServerSettings.enablePlayerList = sSavedSettings.enablePlayerList
+        gServerSettings.enablePlayersInLevelDisplay = sSavedSettings.enablePlayersInLevelDisplay
 
         gLevelValues.fixVanishFloors = sSavedSettings.fixVanishFloors
         gLevelValues.pauseExitAnywhere = sSavedSettings.pauseExitAnywhere
         gBehaviorValues.RespawnShellBoxes = sSavedSettings.respawnShellBoxes
 
-        camera_config_enable_free_cam(sSavedSettings.freeCam)
+        --camera_config_enable_free_cam(sSavedSettings.freeCam)
 
         handle_classic_music()
-        smlua_audio_utils_set_note_freq_scale(sSavedSettings.noteFreq)
+
+        smlua_audio_utils_set_note_freq_scale(1)
         reset_window_title()
     end
 end
 toggle_c4424()
 
 local function update()
+    if not c4424Enabled then return end
     for i = 0, MAX_PLAYERS - 1 do
-        gNetworkPlayers[i].overrideModelIndex = if_then_else(c4424Enabled, CT_MARIO, gNetworkPlayers[0].modelIndex)
+        gNetworkPlayers[i].overrideModelIndex = if_then_else(forceMario, CT_MARIO, gNetworkPlayers[0].modelIndex)
     end
 
-    gfx_enable_adjust_for_aspect_ratio(not c4424Enabled or djui_hud_is_pause_menu_created())
+    if not c4424Enabled or not stretchWidescreen or djui_hud_is_pause_menu_created() then
+        gfx_enable_adjust_for_aspect_ratio(true)
+    else
+        gfx_enable_adjust_for_aspect_ratio(false)
+    end
 end
+
 
 --- @param m MarioState
 local function mario_update(m)
     if not active_player(m) or not c4424Enabled then return end
 
-    if m.hurtCounter == 1 then
+    --10% chance
+    if m.hurtCounter == 1 and math.random(1, 100) <= 10 and shouldPlayMamaSound then
         audio_sample_play(SOUND_CUSTOM_MAMA, m.pos, 1)
+        shouldPlayMamaSound = false
+    end
+
+    if m.hurtCounter == 0 then
+        shouldPlayMamaSound = true
     end
 end
 
@@ -106,24 +141,36 @@ local function on_hud_render()
     djui_hud_set_resolution(RESOLUTION_DJUI)
 
     djui_hud_set_color(255, 255, 255, 255)
-    if watermarkTex == TEX_HYPERCAM then
+
+    if watermarkValue == 0 then
+        return
+    elseif watermarkValue == 1 then
         djui_hud_render_texture(TEX_HYPERCAM, 0, 0, 1.5, 1.5)
-    else
-        djui_hud_render_texture(TEX_BANDICAM, djui_hud_get_screen_width() * 0.5 - 128, 0, 1, 1)
+    elseif watermarkValue == 2 then
+        djui_hud_render_texture(TEX_BANDICAM,
+            --djui_hud_get_screen_width() * 0.5 - 128,
+            if_then_else(stretchWidescreen, djui_hud_get_screen_width() * 0.34 - 128,
+                djui_hud_get_screen_width() * 0.5 - 128),
+            0, 1, 1)
     end
 end
 
 -- it isn't necessary to have the following for hooks: all in 1 file, strict function naming, the hooked function in the same file
 -- but I just abide by these anyway because I just think it's cleaner
 local function on_level_init()
+    levelSeq = get_current_background_music()
     handle_classic_music()
+    -- Load preferences
+    load_mod_storage()
 end
 
 local function on_hud_render_behind()
-    if not c4424Enabled then
+    if not c4424Enabled or not stretchWidescreen then
         local flags = hud_get_value(HUD_DISPLAY_FLAGS)
         if flags == HUD_DISPLAY_FLAGS_C4424 or flags == HUD_DISPLAY_FLAGS_C4424 | HUD_DISPLAY_FLAGS_COIN_COUNT then
-            hud_set_value(HUD_DISPLAY_FLAGS, HUD_DISPLAY_FLAGS_LIVES | HUD_DISPLAY_FLAGS_STAR_COUNT | HUD_DISPLAY_FLAGS_CAMERA | HUD_DISPLAY_FLAGS_CAMERA_AND_POWER | HUD_DISPLAY_FLAGS_POWER)
+            hud_set_value(HUD_DISPLAY_FLAGS,
+                HUD_DISPLAY_FLAGS_LIVES | HUD_DISPLAY_FLAGS_STAR_COUNT | HUD_DISPLAY_FLAGS_CAMERA |
+                HUD_DISPLAY_FLAGS_CAMERA_AND_POWER | HUD_DISPLAY_FLAGS_POWER)
         end
         return
     end
@@ -146,19 +193,40 @@ local function on_c4424_command(msg)
         playMusic = not playMusic
         handle_classic_music()
         djui_chat_message_create("[C4424] Music status: " .. on_or_off(playMusic))
+    elseif args[1] == "highPitch" then
+        highPitch = not highPitch
+        smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
+        djui_chat_message_create("[C4424] Higher pitch: " .. on_or_off(highPitch))
     elseif args[1] == "watermark" then
-        if watermarkTex == TEX_HYPERCAM then
-            watermarkTex = TEX_BANDICAM
+        -- 0 = disabled, 1 = hypercam, 2 = bandicam
+        if watermarkValue == 0 then
+            watermarkValue = 1
+            djui_chat_message_create("[C4424] Watermark: Hypercam")
+        elseif watermarkValue == 1 then
+            watermarkValue = 2
             djui_chat_message_create("[C4424] Watermark: Bandicam")
         else
-            watermarkTex = TEX_HYPERCAM
-            djui_chat_message_create("[C4424] Watermark: Hypercam")
+            watermarkValue = 0
+            djui_chat_message_create("[C4424] Watermark: Disabled")
         end
-    else
+    elseif args[1] == "widescreen" then
+        stretchWidescreen = not stretchWidescreen
+        djui_chat_message_create("[C4424] Widescreen status: " ..
+            on_or_off_string(stretchWidescreen, "Stretched", "Unstretched"))
+    elseif args[1] == "forceMario" then
+        forceMario = not forceMario
+        djui_chat_message_create("[C4424] Force Mario: " .. on_or_off_inverted(forceMario)) -- Why do I have to invert this one?
+    elseif args[1] == "toggle" then
         toggle_c4424()
-        djui_chat_message_create("[C4424] Status: " .. on_or_off(c4424Enabled))
+        djui_chat_message_create("[C4424] Status: " .. on_or_off_string(c4424Enabled, "Enabled", "Disabled"))
+    elseif args[1] == "info" then
+        debug_print_vars()
+    else
+        djui_chat_message_create(
+            "c4424 - \\#00ffff\\[info|toggle|emblem|shadow|music|watermark|widescreen|highPitch|forceMario]")
     end
 
+    save_mod_storage()
     return true
 end
 
@@ -168,4 +236,6 @@ hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_ON_LEVEL_INIT, on_level_init)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
 
-hook_chat_command("c4424", "\\#00ffff\\[emblem|shadow|music|watermark]\\#7f7f7f\\ (leave blank to toggle C4424 on or off)", on_c4424_command)
+hook_chat_command("c4424",
+    "\\#00ffff\\[info|toggle|emblem|shadow|music|watermark|widescreen|highPitch|forceMario]",
+    on_c4424_command)

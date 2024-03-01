@@ -1,6 +1,3 @@
-local hideEmblems = true
-local hideShadows = true
-
 local sEmblemTextures = {
     "mario_texture_m_cap",
     "mario_texture_m_logo",

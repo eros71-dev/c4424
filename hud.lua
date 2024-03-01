@@ -106,7 +106,11 @@ local function render_hud_timer()
     local timerSecs = (timerValFrames / 30) % 60
     local timerFracSecs = ((timerValFrames / 30) % 1) * 10
 
-    print_text(gfx_dimensions_rect_from_right_edge(150), 185, "TIME")
+    if timerMins == 0 and timerSecs == 69 then
+        print_text(gfx_dimensions_rect_from_right_edge(150), 185, "NICE")
+    else
+        print_text(gfx_dimensions_rect_from_right_edge(150), 185, "TIME")
+    end
     print_text_fmt_int(gfx_dimensions_rect_from_right_edge(91), 185, "%0d", math.floor(timerMins))
     print_text_fmt_int(gfx_dimensions_rect_from_right_edge(71), 185, "%02d", math.floor(timerSecs))
     print_text_fmt_int(gfx_dimensions_rect_from_right_edge(37), 185, "%d", math.floor(timerFracSecs))

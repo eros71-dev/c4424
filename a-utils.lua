@@ -4,7 +4,8 @@ if SM64COOPDX_VERSION == nil then
         if not first then
             first = true
             play_sound(SOUND_MENU_CAMERA_BUZZ, gMarioStates[0].marioObj.header.gfx.cameraToObject)
-            djui_chat_message_create("\\#ff7f7f\\C4424 is not supported with sm64ex-coop\nas it uses sm64coopdx exclusive Lua functionality.\n\\#dcdcdc\\To play this mod, try out sm64coopdx at\n\\#7f7fff\\https://sm64coopdx.com")
+            djui_chat_message_create(
+                "\\#ff7f7f\\C4424 is not supported with sm64ex-coop\nas it uses sm64coopdx exclusive Lua functionality.\n\\#dcdcdc\\To play this mod, try out sm64coopdx at\n\\#7f7fff\\https://sm64coopdx.com")
         end
     end)
     return
@@ -28,8 +29,22 @@ end
 --- @param value boolean
 --- Returns an ON or OFF string depending on the boolean value
 function on_or_off(value)
+    if value then return "\\#ff0000\\OFF" end
+    return "\\#00ff00\\ON"
+end
+
+--- @param value boolean
+--- Returns an ON or OFF string depending on the boolean value
+function on_or_off_inverted(value)
     if value then return "\\#00ff00\\ON" end
     return "\\#ff0000\\OFF"
+end
+
+--- @param value boolean
+--- Returns a string depending on the boolean value
+function on_or_off_string(value, stringOn, stringOff)
+    if value then return "\\#00ff00\\" .. stringOn end
+    return "\\#ff0000\\" .. stringOff
 end
 
 --- @param cond boolean
@@ -82,4 +97,53 @@ function switch(param, caseTable)
     if case then return case() end
     local def = caseTable['default']
     return def and def() or nil
+end
+
+function debug_print_vars()
+    djui_chat_message_create("c4424Enabled: " .. tostring(c4424Enabled) .. "\n" ..
+        "hideEmblems: " .. tostring(hideEmblems) .. "\n" ..
+        "hideShadows: " .. tostring(hideShadows) .. "\n" ..
+        "playMusic: " .. tostring(playMusic) .. "\n" ..
+        "highPitch: " .. tostring(highPitch) .. "\n" ..
+        "watermarkValue: " .. tostring(watermarkValue) .. "\n" ..
+        "stretchWidescreen: " .. tostring(stretchWidescreen) .. "\n" ..
+        "forceMario: " .. tostring(forceMario)
+    )
+end
+
+-- Mod storage save function
+function save_mod_storage()
+    mod_storage_save_bool("c4424Enabled", c4424Enabled)
+    mod_storage_save_bool("hideEmblems", hideEmblems)
+    mod_storage_save_bool("hideShadows", hideShadows)
+    mod_storage_save_bool("playMusic", playMusic)
+    mod_storage_save_bool("highPitch", highPitch)
+    mod_storage_save_number("watermarkValue", watermarkValue)
+    mod_storage_save_bool("stretchWidescreen", stretchWidescreen)
+    mod_storage_save_bool("forceMario", forceMario)
+
+    --debug_print_vars()
+end
+
+-- Mod storage load function
+function load_mod_storage()
+    c4424Enabled = mod_storage_load_bool("c4424Enabled")
+    hideEmblems = mod_storage_load_bool("hideEmblems")
+    hideShadows = mod_storage_load_bool("hideShadows")
+    playMusic = mod_storage_load_bool("playMusic")
+    highPitch = mod_storage_load_bool("highPitch")
+    watermarkValue = mod_storage_load_number("watermarkValue")
+    stretchWidescreen = mod_storage_load_bool("stretchWidescreen")
+    forceMario = mod_storage_load_bool("forceMario")
+
+    --debug_print_vars()
+
+    override_emblems()
+    override_shadows()
+
+    smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
+
+    if c4424Enabled then
+        set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
+    end
 end
