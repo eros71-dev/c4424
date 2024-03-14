@@ -104,9 +104,7 @@ function debug_print_vars()
         "hideEmblems: " .. tostring(hideEmblems) .. "\n" ..
         "hideShadows: " .. tostring(hideShadows) .. "\n" ..
         "playMusic: " .. tostring(playMusic) .. "\n" ..
-        "highPitch: " .. tostring(highPitch) .. "\n" ..
         "watermarkValue: " .. tostring(watermarkValue) .. "\n" ..
-        "stretchWidescreen: " .. tostring(stretchWidescreen) .. "\n" ..
         "forceMario: " .. tostring(forceMario)
     )
 end
@@ -117,9 +115,7 @@ function save_mod_storage()
     mod_storage_save_bool("hideEmblems", hideEmblems)
     mod_storage_save_bool("hideShadows", hideShadows)
     mod_storage_save_bool("playMusic", playMusic)
-    mod_storage_save_bool("highPitch", highPitch)
     mod_storage_save_number("watermarkValue", watermarkValue)
-    mod_storage_save_bool("stretchWidescreen", stretchWidescreen)
     mod_storage_save_bool("forceMario", forceMario)
 
     --debug_print_vars()
@@ -131,9 +127,7 @@ function load_mod_storage()
     hideEmblems = mod_storage_load_bool("hideEmblems")
     hideShadows = mod_storage_load_bool("hideShadows")
     playMusic = mod_storage_load_bool("playMusic")
-    highPitch = mod_storage_load_bool("highPitch")
     watermarkValue = mod_storage_load_number("watermarkValue")
-    stretchWidescreen = mod_storage_load_bool("stretchWidescreen")
     forceMario = mod_storage_load_bool("forceMario")
 
     --debug_print_vars()
@@ -147,3 +141,5 @@ function load_mod_storage()
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     end
 end
+
+-- In loving memory of the stretched widescreen and high pitch options, so long, king.

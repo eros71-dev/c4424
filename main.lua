@@ -27,7 +27,6 @@ local sSavedSettings = {
     enablePlayerList = gServerSettings.enablePlayerList,
     enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
     freeCam = camera_config_is_free_cam_enabled(),
-    noteFreq = smlua_audio_utils_get_note_freq_scale()
 }
 
 -- Default settings
@@ -36,8 +35,8 @@ hideEmblems = true
 hideShadows = true
 playMusic = true
 watermarkValue = 1
-stretchWidescreen = true
-highPitch = false
+--stretchWidescreen = true
+--highPitch = false
 forceMario = true
 
 local shouldPlayMamaSound = true
@@ -54,7 +53,6 @@ local function update_saved_settings()
         enablePlayerList = gServerSettings.enablePlayerList,
         enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
         freeCam = camera_config_is_free_cam_enabled(),
-        noteFreq = smlua_audio_utils_get_note_freq_scale()
     }
 end
 
@@ -82,7 +80,6 @@ local function toggle_c4424()
 
         handle_classic_music()
 
-        smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     else
         gServerSettings.bouncyLevelBounds = sSavedSettings.bouncyLevelBounds
@@ -99,8 +96,6 @@ local function toggle_c4424()
         --camera_config_enable_free_cam(sSavedSettings.freeCam)
 
         handle_classic_music()
-
-        smlua_audio_utils_set_note_freq_scale(1)
         reset_window_title()
     end
 end
@@ -110,12 +105,6 @@ local function update()
     if not c4424Enabled then return end
     for i = 0, MAX_PLAYERS - 1 do
         gNetworkPlayers[i].overrideModelIndex = if_then_else(forceMario, CT_MARIO, gNetworkPlayers[0].modelIndex)
-    end
-
-    if not c4424Enabled or not stretchWidescreen or djui_hud_is_pause_menu_created() then
-        gfx_enable_adjust_for_aspect_ratio(true)
-    else
-        gfx_enable_adjust_for_aspect_ratio(false)
     end
 end
 
@@ -147,11 +136,7 @@ local function on_hud_render()
     elseif watermarkValue == 1 then
         djui_hud_render_texture(TEX_HYPERCAM, 0, 0, 1.5, 1.5)
     elseif watermarkValue == 2 then
-        djui_hud_render_texture(TEX_BANDICAM,
-            --djui_hud_get_screen_width() * 0.5 - 128,
-            if_then_else(stretchWidescreen, djui_hud_get_screen_width() * 0.34 - 128,
-                djui_hud_get_screen_width() * 0.5 - 128),
-            0, 1, 1)
+        djui_hud_render_texture(TEX_BANDICAM, djui_hud_get_screen_width() * 0.5 - 128, 0, 1, 1)
     end
 end
 
@@ -165,7 +150,7 @@ local function on_level_init()
 end
 
 local function on_hud_render_behind()
-    if not c4424Enabled or not stretchWidescreen then
+    if not c4424Enabled then
         local flags = hud_get_value(HUD_DISPLAY_FLAGS)
         if flags == HUD_DISPLAY_FLAGS_C4424 or flags == HUD_DISPLAY_FLAGS_C4424 | HUD_DISPLAY_FLAGS_COIN_COUNT then
             hud_set_value(HUD_DISPLAY_FLAGS,
@@ -174,7 +159,6 @@ local function on_hud_render_behind()
         end
         return
     end
-
     render_vanilla_hud()
 end
 
@@ -193,10 +177,6 @@ local function on_c4424_command(msg)
         playMusic = not playMusic
         handle_classic_music()
         djui_chat_message_create("[C4424] Music status: " .. on_or_off(playMusic))
-    elseif args[1] == "highPitch" then
-        highPitch = not highPitch
-        smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
-        djui_chat_message_create("[C4424] Higher pitch: " .. on_or_off(highPitch))
     elseif args[1] == "watermark" then
         -- 0 = disabled, 1 = hypercam, 2 = bandicam
         if watermarkValue == 0 then
@@ -209,10 +189,6 @@ local function on_c4424_command(msg)
             watermarkValue = 0
             djui_chat_message_create("[C4424] Watermark: Disabled")
         end
-    elseif args[1] == "widescreen" then
-        stretchWidescreen = not stretchWidescreen
-        djui_chat_message_create("[C4424] Widescreen status: " ..
-            on_or_off_string(stretchWidescreen, "Stretched", "Unstretched"))
     elseif args[1] == "forceMario" then
         forceMario = not forceMario
         djui_chat_message_create("[C4424] Force Mario: " .. on_or_off_inverted(forceMario)) -- Why do I have to invert this one?
@@ -223,7 +199,7 @@ local function on_c4424_command(msg)
         debug_print_vars()
     else
         djui_chat_message_create(
-            "c4424 - \\#00ffff\\[info|toggle|emblem|shadow|music|watermark|widescreen|highPitch|forceMario]")
+            "c4424 - \\#00ffff\\[info|toggle|emblem|shadow|music|watermark|forceMario]")
     end
 
     save_mod_storage()
@@ -237,5 +213,5 @@ hook_event(HOOK_ON_LEVEL_INIT, on_level_init)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
 
 hook_chat_command("c4424",
-    "\\#00ffff\\[info|toggle|emblem|shadow|music|watermark|widescreen|highPitch|forceMario]",
+    "\\#00ffff\\[info|toggle|emblem|shadow|music|watermark|forceMario]",
     on_c4424_command)
