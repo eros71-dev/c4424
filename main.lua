@@ -118,10 +118,6 @@ local function mario_update(m)
         audio_sample_play(SOUND_CUSTOM_MAMA, m.pos, 1)
         shouldPlayMamaSound = false
     end
-
-    if m.hurtCounter == 0 then
-        shouldPlayMamaSound = true
-    end
 end
 
 local function on_hud_render()
