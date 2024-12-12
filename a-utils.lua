@@ -135,8 +135,6 @@ function load_mod_storage()
     override_emblems()
     override_shadows()
 
-    smlua_audio_utils_set_note_freq_scale(if_then_else(highPitch, 1.02, 1))
-
     if c4424Enabled then
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     end
