@@ -1,4 +1,4 @@
-local sMusicTable = {
+_G.c4424.sMusicTable = {
     { stream = audio_stream_load("trance.mp3"),         volume = 0.8, displayName = "Trance - 009 Sound System" },
     { stream = audio_stream_load("schemingweasel.mp3"), volume = 1.2, displayName = "Scheming Weasel - Kevin MacLeod" },
     { stream = audio_stream_load("monkeys.mp3"),        volume = 1.1, displayName = "Monkeys Spinning Monkeys - Kevin MacLeod" },
