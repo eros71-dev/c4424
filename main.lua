@@ -2,9 +2,6 @@
 -- description: Enough creepypastas, give me a comfortingpasta instead.\n\nComfortingpasta? Soothingpasta?...\n\n\nUnscarypasta?\n\nI don't know, just bring me back to the good old days.\n\nBy lots of people, credits in the code.
 -- deluxe: true
 
--- API stuff for addons
-_G.c4424 = {}
-
 if SM64COOPDX_VERSION == nil then return end
 
 TEX_EMPTY = get_texture_info("c4424_empty")

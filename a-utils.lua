@@ -1,3 +1,6 @@
+-- API stuff for addons
+_G.c4424 = {}
+
 if SM64COOPDX_VERSION == nil then
     local first = false
     hook_event(HOOK_ON_LEVEL_INIT, function()
