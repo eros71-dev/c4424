@@ -130,6 +130,10 @@ local function on_hud_render_behind()
     render_vanilla_hud()
 end
 
+local function on_exit()
+    c4424_save()
+end
+
 
 local function on_set_enable_c4424()
     toggle_c4424()
@@ -173,6 +177,7 @@ end
 hook_event(HOOK_MARIO_UPDATE, mario_update)
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
+hook_event(HOOK_ON_EXIT, on_exit)
 
 hook_mod_menu_checkbox("Enable C4424", c4424Enabled, on_set_enable_c4424)
 hook_mod_menu_checkbox("Hide Emblems", c4424HideEmblems, on_set_hide_emblems)
