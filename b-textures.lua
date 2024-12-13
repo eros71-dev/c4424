@@ -1,12 +1,13 @@
 local sEmblemTextures = {
-    "mario_texture_m_cap",
-    "mario_texture_m_logo",
-    "luigi_texture_l_cap",
-    "toad_player_texture_spots",
-    "toad_player_texture_cap",
-    "waluigi_custom_waluigi_cap_rgba16",
-    "waluigi_custom_waluigi_glove_rgba16",
-    "wario_texture_w_logo"
+    { name = "mario_texture_m_blend",               texture = TEX_WHITE },
+    { name = "mario_texture_m_cap",                 texture = TEX_WHITE },
+    { name = "mario_texture_m_logo",                texture = TEX_EMPTY },
+    { name = "luigi_texture_l_cap",                 texture = TEX_WHITE },
+    { name = "toad_player_texture_spots",           texture = TEX_WHITE },
+    { name = "toad_player_texture_cap",             texture = TEX_WHITE },
+    { name = "waluigi_custom_waluigi_cap_rgba16",   texture = TEX_WHITE },
+    { name = "waluigi_custom_waluigi_glove_rgba16", texture = TEX_WHITE },
+    { name = "wario_texture_w_logo",                texture = TEX_WHITE }
 }
 
 local sShadowTextures = {
@@ -19,21 +20,19 @@ local sShadowTextures = {
 }
 
 function override_emblems()
-    if hideEmblems and c4424Enabled then
-        for i = 1, #sEmblemTextures do
-            -- Wario and Waluigi haven't been updated yet
-            texture_override_set(sEmblemTextures[i], if_then_else(sEmblemTextures[i]:find("waluigi") or sEmblemTextures[i]:find("wario"), TEX_EMPTY, TEX_WHITE))
+    if c4424HideEmblems and c4424Enabled then
+        for _, v in ipairs(sEmblemTextures) do
+            texture_override_set(v.name, v.texture)
         end
     else
-        for i = 1, #sEmblemTextures do
-            texture_override_reset(sEmblemTextures[i])
+        for _, v in ipairs(sEmblemTextures) do
+            texture_override_reset(v.name)
         end
     end
 end
-override_emblems()
 
 function override_shadows()
-    if hideShadows and c4424Enabled then
+    if c4424HideShadows and c4424Enabled then
         for i = 1, #sShadowTextures do
             texture_override_set(sShadowTextures[i], TEX_EMPTY)
         end
@@ -43,4 +42,3 @@ function override_shadows()
         end
     end
 end
-override_shadows()

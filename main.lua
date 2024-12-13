@@ -1,99 +1,84 @@
 -- name: C4424
--- description: Enough creepypastas, give me a comfortingpasta instead.\n\nComfortingpasta? Soothingpasta?...\n\n\nUnscarypasta?\n\nI don't know, just bring me back to the good old days.\n\nBy lots of people, credits in the code.
--- deluxe: true
-
-if SM64COOPDX_VERSION == nil then return end
-
-TEX_EMPTY = get_texture_info("c4424_empty")
-TEX_WHITE = get_texture_info("c4424_white")
-local TEX_HYPERCAM = get_texture_info("c4424_hypercam")
-local TEX_BANDICAM = get_texture_info("c4424_bandicam")
-
-local SOUND_CUSTOM_MAMA = audio_sample_load("mama.mp3")
-
-HUD_DISPLAY_FLAGS_C4424 = HUD_DISPLAY_FLAGS_CAMERA_AND_POWER | HUD_DISPLAY_FLAGS_POWER
-
---c4424Enabled = false
-watermarkTex = TEX_HYPERCAM
+-- description: C\\#09b6ca\\4\\#baab16\\4\\#1a2ec4\\2\\#e93ee3\\4\n\\#dcdcdc\\By The C4424 Team\n\nEnough creepypastas, give me a comfortingpasta instead.\n\nComfortingpasta? Soothingpasta?...\n\n\nUnscarypasta?\n\nI don't know, just bring me back to the good old days.
 
 local sSavedSettings = {
     bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
-    bubbleDeath = gServerSettings.bubbleDeath,
-    nametags = gServerSettings.nametags,
     stayInLevelAfterStar = gServerSettings.stayInLevelAfterStar,
-    fixVanishFloors = gLevelValues.fixVanishFloors,
-    pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
-    respawnShellBoxes = gBehaviorValues.RespawnShellBoxes,
+    skipIntro = gServerSettings.skipIntro,
+    bubbleDeath = gServerSettings.bubbleDeath,
     enablePlayerList = gServerSettings.enablePlayerList,
     enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
-    freeCam = camera_config_is_free_cam_enabled(),
+    nametags = gServerSettings.nametags,
+    pauseAnywhere = gServerSettings.pauseAnywhere,
+    pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
+    respawnShellBoxes = gBehaviorValues.RespawnShellBoxes
 }
 
--- Default settings
-c4424Enabled = true
-hideEmblems = true
-hideShadows = true
-playMusic = true
-watermarkValue = 1
---stretchWidescreen = true
---highPitch = false
-forceMario = true
+c4424Enabled     = not mod_storage_load_bool_2("c4424_enabled")
+c4424HideEmblems = mod_storage_load_bool_2("hide_emblems")
+c4424HideShadows = mod_storage_load_bool_2("hide_shadows")
+c4424PlayMusic   = mod_storage_load_bool_2("play_music")
+c4424ForceMario  = mod_storage_load_bool_2("force_mario")
+c4424Watermark   = if_then_else(mod_storage_load("watermark") ~= nil, mod_storage_load_number("watermark"), WATERMARK_HYPERCAM) -- mod_storage_exists in v1.1
 
 local shouldPlayMamaSound = true
 
-local function update_saved_settings()
-    sSavedSettings = {
-        bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
-        bubbleDeath = gServerSettings.bubbleDeath,
-        nametags = gServerSettings.nametags,
-        stayInLevelAfterStar = gServerSettings.stayInLevelAfterStar,
-        fixVanishFloors = gLevelValues.fixVanishFloors,
-        pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
-        respawnShellBoxes = gBehaviorValues.RespawnShellBoxes,
-        enablePlayerList = gServerSettings.enablePlayerList,
-        enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
-        freeCam = camera_config_is_free_cam_enabled(),
-    }
+-- Mod storage save function
+local function c4424_save()
+    mod_storage_save_bool("c4424_enabled", c4424Enabled)
+    mod_storage_save_bool("hide_emblems", c4424HideEmblems)
+    mod_storage_save_bool("hide_shadows", c4424HideShadows)
+    mod_storage_save_bool("play_music", c4424PlayMusic)
+    mod_storage_save_number("watermark", c4424Watermark)
+    mod_storage_save_bool("force_mario", c4424ForceMario)
 end
 
 local function toggle_c4424()
     if not c4424Enabled then
-        update_saved_settings()
+        sSavedSettings = {
+            bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
+            stayInLevelAfterStar = gServerSettings.stayInLevelAfterStar,
+            skipIntro = gServerSettings.skipIntro,
+            bubbleDeath = gServerSettings.bubbleDeath,
+            enablePlayerList = gServerSettings.enablePlayerList,
+            enablePlayersInLevelDisplay = gServerSettings.enablePlayersInLevelDisplay,
+            nametags = gServerSettings.nametags,
+            pauseAnywhere = gServerSettings.pauseAnywhere,
+            pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
+            respawnShellBoxes = gBehaviorValues.RespawnShellBoxes
+        }
     end
+
     c4424Enabled = not c4424Enabled
     override_emblems()
     override_shadows()
 
     if c4424Enabled then
         gServerSettings.bouncyLevelBounds = BOUNCY_LEVEL_BOUNDS_OFF
-        gServerSettings.bubbleDeath = false
-        gServerSettings.nametags = false
         gServerSettings.stayInLevelAfterStar = 0
+        gServerSettings.skipIntro = false
+        gServerSettings.bubbleDeath = false
         gServerSettings.enablePlayerList = false
         gServerSettings.enablePlayersInLevelDisplay = false
-
-        gLevelValues.fixVanishFloors = false
+        gServerSettings.nametags = false
+        gServerSettings.pauseAnywhere = false
         gLevelValues.pauseExitAnywhere = false
         gBehaviorValues.RespawnShellBoxes = false
-
-        --camera_config_enable_free_cam(false) -- I'll be honest this may be a bit annoying later on
 
         handle_classic_music()
 
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     else
         gServerSettings.bouncyLevelBounds = sSavedSettings.bouncyLevelBounds
-        gServerSettings.bubbleDeath = sSavedSettings.bubbleDeath
-        gServerSettings.nametags = sSavedSettings.nametags
         gServerSettings.stayInLevelAfterStar = sSavedSettings.stayInLevelAfterStar
+        gServerSettings.skipIntro = sSavedSettings.skipIntro
+        gServerSettings.bubbleDeath = sSavedSettings.bubbleDeath
         gServerSettings.enablePlayerList = sSavedSettings.enablePlayerList
         gServerSettings.enablePlayersInLevelDisplay = sSavedSettings.enablePlayersInLevelDisplay
-
-        gLevelValues.fixVanishFloors = sSavedSettings.fixVanishFloors
+        gServerSettings.nametags = sSavedSettings.nametags
+        gServerSettings.pauseAnywhere = sSavedSettings.pauseAnywhere
         gLevelValues.pauseExitAnywhere = sSavedSettings.pauseExitAnywhere
         gBehaviorValues.RespawnShellBoxes = sSavedSettings.respawnShellBoxes
-
-        --camera_config_enable_free_cam(sSavedSettings.freeCam)
 
         handle_classic_music()
         reset_window_title()
@@ -101,17 +86,14 @@ local function toggle_c4424()
 end
 toggle_c4424()
 
-local function update()
-    if not c4424Enabled then return end
-    for i = 0, MAX_PLAYERS - 1 do
-        gNetworkPlayers[i].overrideModelIndex = if_then_else(forceMario, CT_MARIO, gNetworkPlayers[0].modelIndex)
-    end
-end
-
 
 --- @param m MarioState
 local function mario_update(m)
-    if not active_player(m) or not c4424Enabled then return end
+    if not active_player(m) then return end
+
+    gNetworkPlayers[m.playerIndex].overrideModelIndex = if_then_else(c4424Enabled and c4424ForceMario, CT_MARIO, gNetworkPlayers[0].modelIndex)
+
+    if not c4424Enabled then return end
 
     --10% chance
     if m.hurtCounter == 1 and math.random(1, 100) <= 10 and shouldPlayMamaSound then
@@ -127,22 +109,11 @@ local function on_hud_render()
 
     djui_hud_set_color(255, 255, 255, 255)
 
-    if watermarkValue == 0 then
-        return
-    elseif watermarkValue == 1 then
+    if c4424Watermark == WATERMARK_HYPERCAM then
         djui_hud_render_texture(TEX_HYPERCAM, 0, 0, 1.5, 1.5)
-    elseif watermarkValue == 2 then
+    elseif c4424Watermark == WATERMARK_BANDICAM then
         djui_hud_render_texture(TEX_BANDICAM, djui_hud_get_screen_width() * 0.5 - 128, 0, 1, 1)
     end
-end
-
--- it isn't necessary to have the following for hooks: all in 1 file, strict function naming, the hooked function in the same file
--- but I just abide by these anyway because I just think it's cleaner
-local function on_level_init()
-    levelSeq = get_current_background_music()
-    handle_classic_music()
-    -- Load preferences
-    load_mod_storage()
 end
 
 local function on_hud_render_behind()
@@ -155,59 +126,57 @@ local function on_hud_render_behind()
         end
         return
     end
+
     render_vanilla_hud()
 end
 
 
-local function on_c4424_command(msg)
-    local args = split(msg)
-    if args[1] == "emblem" then
-        hideEmblems = not hideEmblems
-        override_emblems()
-        djui_chat_message_create("[C4424] Emblem status: " .. on_or_off(hideEmblems))
-    elseif args[1] == "shadow" then
-        hideShadows = not hideShadows
-        override_shadows()
-        djui_chat_message_create("[C4424] Shadow status: " .. on_or_off(hideShadows))
-    elseif args[1] == "music" then
-        playMusic = not playMusic
-        handle_classic_music()
-        djui_chat_message_create("[C4424] Music status: " .. on_or_off(playMusic))
-    elseif args[1] == "watermark" then
-        -- 0 = disabled, 1 = hypercam, 2 = bandicam
-        if watermarkValue == 0 then
-            watermarkValue = 1
-            djui_chat_message_create("[C4424] Watermark: Hypercam")
-        elseif watermarkValue == 1 then
-            watermarkValue = 2
-            djui_chat_message_create("[C4424] Watermark: Bandicam")
-        else
-            watermarkValue = 0
-            djui_chat_message_create("[C4424] Watermark: Disabled")
-        end
-    elseif args[1] == "forceMario" then
-        forceMario = not forceMario
-        djui_chat_message_create("[C4424] Force Mario: " .. on_or_off_inverted(forceMario)) -- Why do I have to invert this one?
-    elseif args[1] == "toggle" then
-        toggle_c4424()
-        djui_chat_message_create("[C4424] Status: " .. on_or_off_string(c4424Enabled, "Enabled", "Disabled"))
-    elseif args[1] == "info" then
-        debug_print_vars()
-    else
-        djui_chat_message_create(
-            "c4424 - \\#00ffff\\[info|toggle|emblem|shadow|music|watermark|forceMario]")
-    end
-
-    save_mod_storage()
-    return true
+local function on_set_enable_c4424()
+    toggle_c4424()
 end
 
-hook_event(HOOK_UPDATE, update)
+local function on_set_hide_emblems()
+    c4424HideEmblems = not c4424HideEmblems
+    override_emblems()
+    c4424_save()
+end
+
+local function on_set_hide_shadows()
+    c4424HideShadows = not c4424HideShadows
+    override_shadows()
+    c4424_save()
+end
+
+local function on_set_play_music()
+    c4424PlayMusic = not c4424PlayMusic
+    handle_classic_music()
+    c4424_save()
+end
+
+local function on_set_force_mario()
+    c4424ForceMario = not c4424ForceMario
+    c4424_save()
+end
+
+local function on_set_watermark(index, value)
+    c4424Watermark = value
+    if value == WATERMARK_NONE then
+        update_mod_menu_element_name(index, "Watermark: None")
+    elseif value == WATERMARK_HYPERCAM then
+        update_mod_menu_element_name(index, "Watermark: Hypercam")
+    elseif value == WATERMARK_BANDICAM then
+        update_mod_menu_element_name(index, "Watermark: Bandicam")
+    end
+end
+
+
 hook_event(HOOK_MARIO_UPDATE, mario_update)
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
-hook_event(HOOK_ON_LEVEL_INIT, on_level_init)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
 
-hook_chat_command("c4424",
-    "\\#00ffff\\[info|toggle|emblem|shadow|music|watermark|forceMario]",
-    on_c4424_command)
+hook_mod_menu_checkbox("Enable C4424", c4424Enabled, on_set_enable_c4424)
+hook_mod_menu_checkbox("Hide Emblems", c4424HideEmblems, on_set_hide_emblems)
+hook_mod_menu_checkbox("Hide Shadows", c4424HideShadows, on_set_hide_shadows)
+hook_mod_menu_checkbox("Play Music", c4424PlayMusic, on_set_play_music)
+hook_mod_menu_checkbox("Force Mario", c4424ForceMario, on_set_force_mario)
+hook_mod_menu_slider("Watermark: Hypercam", c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM, on_set_watermark)
