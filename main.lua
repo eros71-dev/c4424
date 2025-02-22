@@ -14,12 +14,18 @@ local sSavedSettings = {
     respawnShellBoxes = gBehaviorValues.RespawnShellBoxes
 }
 
+local sWatermarkNames = {
+    [WATERMARK_NONE] = "None",
+    [WATERMARK_HYPERCAM] = "Hypercam",
+    [WATERMARK_BANDICAM] = "Bandicam"
+}
+
 c4424Enabled     = not mod_storage_load_bool_2("c4424_enabled")
 c4424HideEmblems = mod_storage_load_bool_2("hide_emblems")
 c4424HideShadows = mod_storage_load_bool_2("hide_shadows")
 c4424PlayMusic   = mod_storage_load_bool_2("play_music")
 c4424ForceMario  = mod_storage_load_bool_2("force_mario")
-c4424Watermark   = if_then_else(mod_storage_load("watermark") ~= nil, mod_storage_load_number("watermark"), WATERMARK_HYPERCAM) -- mod_storage_exists in v1.1
+c4424Watermark   = if_then_else(mod_storage_exists("watermark"), mod_storage_load_number("watermark"), WATERMARK_HYPERCAM)
 
 local shouldPlayMamaSound = true
 
@@ -65,7 +71,7 @@ local function toggle_c4424()
         gLevelValues.pauseExitAnywhere = false
         gBehaviorValues.RespawnShellBoxes = false
 
-        handle_classic_music()
+        handle_music()
 
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
     else
@@ -80,12 +86,11 @@ local function toggle_c4424()
         gLevelValues.pauseExitAnywhere = sSavedSettings.pauseExitAnywhere
         gBehaviorValues.RespawnShellBoxes = sSavedSettings.respawnShellBoxes
 
-        handle_classic_music()
+        handle_music()
         reset_window_title()
     end
 end
 toggle_c4424()
-
 
 --- @param m MarioState
 local function mario_update(m)
@@ -102,8 +107,21 @@ local function mario_update(m)
     end
 end
 
+local function on_warp()
+    handle_music()
+end
+
 local function on_hud_render()
     if not c4424Enabled then return end
+
+    djui_hud_set_resolution(RESOLUTION_N64)
+
+    djui_hud_set_color(0, 0, 0, 255)
+
+    local width = djui_hud_get_screen_width() + 30
+    local height = djui_hud_get_screen_height()
+    djui_hud_render_rect(0, 0, width, 8)
+    djui_hud_render_rect(0, height - 8, width, 8)
 
     djui_hud_set_resolution(RESOLUTION_DJUI)
 
@@ -153,7 +171,7 @@ end
 
 local function on_set_play_music()
     c4424PlayMusic = not c4424PlayMusic
-    handle_classic_music()
+    handle_music()
     c4424_save()
 end
 
@@ -176,6 +194,7 @@ end
 
 hook_event(HOOK_MARIO_UPDATE, mario_update)
 hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
+hook_event(HOOK_ON_WARP, on_warp)
 hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
 hook_event(HOOK_ON_EXIT, on_exit)
 
@@ -184,4 +203,4 @@ hook_mod_menu_checkbox("Hide Emblems", c4424HideEmblems, on_set_hide_emblems)
 hook_mod_menu_checkbox("Hide Shadows", c4424HideShadows, on_set_hide_shadows)
 hook_mod_menu_checkbox("Play Music", c4424PlayMusic, on_set_play_music)
 hook_mod_menu_checkbox("Force Mario", c4424ForceMario, on_set_force_mario)
-hook_mod_menu_slider("Watermark: Hypercam", c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM, on_set_watermark)
+hook_mod_menu_slider("Watermark: " .. sWatermarkNames[c4424Watermark], c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM, on_set_watermark)

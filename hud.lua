@@ -39,9 +39,12 @@ local function render_hud_mario_lives()
 end
 
 local function render_hud_coins()
-    print_text(168, HUD_TOP_Y, "$") -- 'Coin' glyph
-    print_text(184, HUD_TOP_Y, "@") -- 'X' glyph
-    print_text_fmt_int(198, HUD_TOP_Y, "%d", hud_get_value(HUD_DISPLAY_COINS))
+    -- print_text(168, HUD_TOP_Y, "$") -- 'Coin' glyph
+    -- print_text(184, HUD_TOP_Y, "@") -- 'X' glyph
+    -- print_text_fmt_int(198, HUD_TOP_Y, "%d", hud_get_value(HUD_DISPLAY_COINS))
+    print_text(gfx_dimensions_rect_from_right_edge(152), HUD_TOP_Y, "$") -- 'Coin' glyph
+    print_text(gfx_dimensions_rect_from_right_edge(136), HUD_TOP_Y, "@") -- 'X' glyph
+    print_text_fmt_int(gfx_dimensions_rect_from_right_edge(122), HUD_TOP_Y, "%d", hud_get_value(HUD_DISPLAY_COINS))
 end
 
 local function render_hud_camera_status()
