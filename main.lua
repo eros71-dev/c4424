@@ -145,7 +145,7 @@ local function on_hud_render_behind()
         return
     end
 
-    render_vanilla_hud()
+    --render_vanilla_hud()
 end
 
 local function on_exit()
