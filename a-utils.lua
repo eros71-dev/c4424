@@ -63,4 +63,4 @@ function mod_storage_load_bool_2(key)
     return tobool(value)
 end
 
--- In loving memory of the stretched widescreen and high pitch options, so long, king.
+-- In loving memory of the stretched widescreen and high pitch options, so long, kings.

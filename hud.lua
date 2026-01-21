@@ -1,6 +1,12 @@
 local TEX_HYPERCAM = get_texture_info("c4424_hypercam")
 local TEX_BANDICAM = get_texture_info("c4424_bandicam")
-local watermarkValue = 1
+
+local N64_WIDTH = 320
+local N64_HEIGHT = 240
+local crashAnim = -30
+
+local borderWidth = 82
+local borderHeight = 14
 
 --- @param x integer
 --- @param y integer
@@ -19,30 +25,47 @@ local function print_text_fmt_int(x, y, str, n)
     print_text(x, y, str)
 end
 
-local N64_WIDTH = 320
-local N64_HEIGHT = 240
-local crashAnim = -30
-local function hud_render()
-    -- Watermark
-    --if not c4424Enabled then return end
 
-    djui_hud_set_resolution(RESOLUTION_N64)
-    local originalWidth = djui_hud_get_screen_width() + 1
-    local boarderWidth = (originalWidth - N64_WIDTH)*0.5
-    djui_hud_set_color(0, 0, 0, 255)
-    djui_hud_render_rect(0, 0, boarderWidth, N64_HEIGHT)
-    djui_hud_render_rect(originalWidth - boarderWidth, 0, boarderWidth, N64_HEIGHT)
-
+local function render_watermark()
     djui_hud_set_resolution(RESOLUTION_DJUI)
     djui_hud_set_color(255, 255, 255, 255)
-    if watermarkValue == 0 then
+    if c4424Watermark == 0 then
         return
-    elseif watermarkValue == 1 then
+    elseif c4424Watermark == 1 then
         djui_hud_render_texture(TEX_HYPERCAM, 0, 0, 1.5, 1.5)
-    elseif watermarkValue == 2 then
+    elseif c4424Watermark == 2 then
         djui_hud_render_texture(TEX_BANDICAM, djui_hud_get_screen_width() * 0.5 - 128, 0, 1, 1)
     end
+end
 
+local function render_aspect_ratio_bars()
+    djui_hud_set_resolution(RESOLUTION_N64)
+    -- Classic aspect ratio, I FUCKED IT UP AAAA
+    if c4424ForceAspectRatio then
+        local width = djui_hud_get_screen_width() + 1 -- yes, + 1
+        local height = djui_hud_get_screen_height()
+
+
+        -- left border
+        djui_hud_set_color(0, 0, 0, 255)
+        djui_hud_render_rect(0, 0, borderWidth, height)
+
+        -- right border
+        djui_hud_set_color(0, 0, 0, 255)
+        djui_hud_render_rect(width - borderWidth, 0, borderWidth, height)
+
+        -- top border
+        djui_hud_set_color(0, 0, 0, 255)
+        djui_hud_render_rect(0, 0, width, borderHeight - (borderHeight*0.2))
+
+        -- bottom border
+        djui_hud_set_color(0, 0, 0, 255)
+        djui_hud_render_rect(0, height - borderHeight, width, borderHeight)
+    end
+    djui_hud_set_resolution(RESOLUTION_DJUI)
+end
+
+local function c4424_hud_render()
     -- Fake Not Responding Screen
     --[[
     crashAnim = crashAnim + 1
@@ -52,9 +75,11 @@ local function hud_render()
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6 (Not Responding)")
     end
     ]]
+    render_aspect_ratio_bars()
+    render_watermark()
 end
 
-local function render_character_icon(x, y, scale) 
+local function render_character_icon(x, y, scale)
     if not _G.charSelectExists then
         djui_hud_render_texture(gMarioStates[0].character.hudHeadTexture, x, y, scale, scale)
     else
@@ -62,11 +87,11 @@ local function render_character_icon(x, y, scale)
     end
 end
 
-local function hud_render_behind()
+local function c4424_hud_render_behind()
     djui_hud_set_resolution(RESOLUTION_N64)
     local originalWidth = djui_hud_get_screen_width()
-    local leftEdge = (originalWidth - N64_WIDTH)*0.5
-    local rightEdge = originalWidth - (originalWidth - N64_WIDTH)*0.5
+    local leftEdge = (originalWidth - N64_WIDTH) * 0.5
+    local rightEdge = originalWidth - (originalWidth - N64_WIDTH) * 0.5
 
     djui_hud_set_resolution(RESOLUTION_N64)
     djui_hud_set_filter(FILTER_LINEAR)
@@ -98,7 +123,7 @@ local function hud_render_behind()
         if hudDisplayStars < 100 then
             showX = 1
         end
-        print_text(rightEdge - 78, 15, "*") -- 'Star' glyph
+        print_text(rightEdge - 78, 15, "*")     -- 'Star' glyph
         if showX == 1 then
             print_text(rightEdge - 62, 15, "@") -- 'X' glyph
         end
@@ -153,5 +178,5 @@ local function hud_render_behind()
     end
 end
 
-hook_event(HOOK_ON_HUD_RENDER, hud_render)
-hook_event(HOOK_ON_HUD_RENDER_BEHIND, hud_render_behind)
+hook_event(HOOK_ON_HUD_RENDER, c4424_hud_render)
+hook_event(HOOK_ON_HUD_RENDER_BEHIND, c4424_hud_render_behind)

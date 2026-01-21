@@ -20,15 +20,19 @@ local sWatermarkNames     = {
     [WATERMARK_BANDICAM] = "Bandicam"
 }
 
-c4424Enabled              = not mod_storage_load_bool_2("c4424_enabled")
+c4424Enabled              = true
+-- You know what, if you don't want C4424 don't even enable the mod dude
+-- We should eventually get rid of this variable entirely
+
 c4424HideEmblems          = mod_storage_load_bool_2("hide_emblems")
 c4424HideShadows          = mod_storage_load_bool_2("hide_shadows")
 c4424PlayMusic            = mod_storage_load_bool_2("play_music")
 c4424ForceMario           = mod_storage_load_bool_2("force_mario")
-c4424Watermark            = if_then_else(mod_storage_exists("watermark"), mod_storage_load_number("watermark"), WATERMARK_HYPERCAM)
+c4424Watermark            = if_then_else(mod_storage_exists("watermark"), mod_storage_load_number("watermark"),
+    WATERMARK_HYPERCAM)
 c4424ForceAspectRatio     = mod_storage_load_bool_2("force_aspect_ratio") -- Forces C4424's 4:3
 
-local shouldPlayMamaSound = true -- Forced ON for now
+local shouldPlayMamaSound = true                                          -- Forced ON for now
 
 -- Mod storage save function
 local function c4424_save()
@@ -42,6 +46,7 @@ local function c4424_save()
 end
 
 local function toggle_c4424()
+    -- TODO: GET RID OF THIS, SAVED SETTING STUFF TO NEW OPTION TO FORCE CLASSIC GAME RULES
     if not c4424Enabled then
         sSavedSettings = {
             bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
@@ -55,13 +60,9 @@ local function toggle_c4424()
             pauseExitAnywhere = gLevelValues.pauseExitAnywhere,
             respawnShellBoxes = gBehaviorValues.RespawnShellBoxes
         }
-    end
 
-    c4424Enabled = not c4424Enabled
-    override_emblems()
-    override_shadows()
-
-    if c4424Enabled then
+        reset_window_title()
+    else
         gServerSettings.bouncyLevelBounds = BOUNCY_LEVEL_BOUNDS_OFF
         gServerSettings.stayInLevelAfterStar = 0
         gServerSettings.skipIntro = false
@@ -73,37 +74,25 @@ local function toggle_c4424()
         gLevelValues.pauseExitAnywhere = false
         gBehaviorValues.RespawnShellBoxes = false
 
-        handle_music()
-
         set_window_title("SUPER MARIO 64 - Project 64 Version 1.6")
-    else
-        gServerSettings.bouncyLevelBounds = sSavedSettings.bouncyLevelBounds
-        gServerSettings.stayInLevelAfterStar = sSavedSettings.stayInLevelAfterStar
-        gServerSettings.skipIntro = sSavedSettings.skipIntro
-        gServerSettings.bubbleDeath = sSavedSettings.bubbleDeath
-        gServerSettings.enablePlayerList = sSavedSettings.enablePlayerList
-        gServerSettings.enablePlayersInLevelDisplay = sSavedSettings.enablePlayersInLevelDisplay
-        gServerSettings.nametags = sSavedSettings.nametags
-        gServerSettings.pauseAnywhere = sSavedSettings.pauseAnywhere
-        gLevelValues.pauseExitAnywhere = sSavedSettings.pauseExitAnywhere
-        gBehaviorValues.RespawnShellBoxes = sSavedSettings.respawnShellBoxes
-
-        handle_music()
-        reset_window_title()
     end
+
+    handle_music()
+    override_emblems()
+    override_shadows()
 end
---toggle_c4424()
 
 --- @param m MarioState
 local function mario_update(m)
     if not active_player(m) then return end
 
+    -- Force Mario
     gNetworkPlayers[m.playerIndex].overrideModelIndex = if_then_else(c4424Enabled and c4424ForceMario, CT_MARIO,
         gNetworkPlayers[0].modelIndex)
 
     if not c4424Enabled then return end
 
-    --1% chance
+    --1% chance of MAMA****** sound
     if shouldPlayMamaSound and m.hurtCounter == 1 and math.random(1, 100) <= 1 then
         audio_sample_play(SOUND_CUSTOM_MAMA, m.pos, 1)
         shouldPlayMamaSound = false
@@ -114,52 +103,8 @@ local function on_warp()
     handle_music()
 end
 
-local function on_hud_render()
-    if not c4424Enabled then return end
-
-    if c4424ForceAspectRatio then
-        djui_hud_set_resolution(RESOLUTION_N64)
-
-        djui_hud_set_color(0, 0, 0, 255)
-
-        local width = djui_hud_get_screen_width() + 30
-        local height = djui_hud_get_screen_height()
-        djui_hud_render_rect(0, 0, width, 8)
-        djui_hud_render_rect(0, height - 8, width, 8)
-    end
-
-    djui_hud_set_resolution(RESOLUTION_DJUI)
-
-    djui_hud_set_color(255, 255, 255, 255)
-
-    if c4424Watermark == WATERMARK_HYPERCAM then
-        djui_hud_render_texture(TEX_HYPERCAM, 0, 0, 1.5, 1.5)
-    elseif c4424Watermark == WATERMARK_BANDICAM then
-        djui_hud_render_texture(TEX_BANDICAM, djui_hud_get_screen_width() * 0.5 - 128, 0, 1, 1)
-    end
-end
-
-local function on_hud_render_behind()
-    if not c4424Enabled then
-        local flags = hud_get_value(HUD_DISPLAY_FLAGS)
-        if flags == HUD_DISPLAY_FLAGS_C4424 or flags == HUD_DISPLAY_FLAGS_C4424 | HUD_DISPLAY_FLAGS_COIN_COUNT then
-            hud_set_value(HUD_DISPLAY_FLAGS,
-                HUD_DISPLAY_FLAGS_LIVES | HUD_DISPLAY_FLAGS_STAR_COUNT | HUD_DISPLAY_FLAGS_CAMERA |
-                HUD_DISPLAY_FLAGS_CAMERA_AND_POWER | HUD_DISPLAY_FLAGS_POWER)
-        end
-        return
-    end
-
-    --render_vanilla_hud()
-end
-
 local function on_exit()
     c4424_save()
-end
-
-
-local function on_set_enable_c4424()
-    toggle_c4424()
 end
 
 local function on_set_hide_emblems()
@@ -201,18 +146,24 @@ local function on_set_watermark(index, value)
     end
 end
 
+local function stub_warn_function()
+    djui_popup_create("Still in development.", 1)
+end
+
 
 hook_event(HOOK_MARIO_UPDATE, mario_update)
-hook_event(HOOK_ON_HUD_RENDER, on_hud_render)
 hook_event(HOOK_ON_WARP, on_warp)
-hook_event(HOOK_ON_HUD_RENDER_BEHIND, on_hud_render_behind)
 hook_event(HOOK_ON_EXIT, on_exit)
 
-hook_mod_menu_checkbox("Enable C4424", c4424Enabled, on_set_enable_c4424)
+hook_mod_menu_checkbox("Play Music", c4424PlayMusic, on_set_play_music)
 hook_mod_menu_checkbox("Hide Emblems", c4424HideEmblems, on_set_hide_emblems)
 hook_mod_menu_checkbox("Hide Shadows", c4424HideShadows, on_set_hide_shadows)
-hook_mod_menu_checkbox("Play Music", c4424PlayMusic, on_set_play_music)
+hook_mod_menu_checkbox("Vanilla game rules", c4424ForceAspectRatio, stub_warn_function)
 hook_mod_menu_checkbox("Force Mario", c4424ForceMario, on_set_force_mario)
-hook_mod_menu_checkbox("Force Classic Aspect Ratio", c4424ForceAspectRatio, on_set_force_aspect_ratio)
+hook_mod_menu_checkbox("Classic Aspect Ratio", c4424ForceAspectRatio, on_set_force_aspect_ratio)
+hook_mod_menu_checkbox("Classic HUD", c4424ForceAspectRatio, stub_warn_function)
 hook_mod_menu_slider("Watermark: " .. sWatermarkNames[c4424Watermark], c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM,
     on_set_watermark)
+
+-- Toggle the C4424 stuff
+toggle_c4424()
