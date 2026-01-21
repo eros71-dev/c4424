@@ -7,6 +7,14 @@ This mod doesn't attempt to follow the same concept like adding an immense amoun
 
 **This mod requires SM64CoopDX to run!**
 
+## Disclaimer
+
+## This mod is heavily in development, and as such may be unstable or have issues.
+
+This mod is intended for entertainment purposes only and is not affiliated with or endorsed by the creators of B3313 or any referenced emulators, YouTube videos, or internet personalities.
+
+Any content (although we try to avoid it as much as possible) belongs to their rightful owners.
+
 ## Features
 
 We've had enough spo0ky beta, go home B3313, you're drunk.
@@ -32,9 +40,5 @@ PRs for additional features or features are welcome, although this is a come-and
 ## Feedback and Support
 
 We value your feedback and are committed to providing a POOP and DINNER experience. If you encounter any issues or have suggestions for improvement, please post it on the Issues tab.
-
-## Disclaimer
-
-This mod is intended for entertainment purposes only and is not affiliated with or endorsed by the creators of B3313 or any referenced emulators, YouTube videos, or internet personalities.
 
 ## TODO: Separate features in main.lua into possible separate lua files for better modularity and readability.
