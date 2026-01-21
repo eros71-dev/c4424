@@ -1,7 +1,7 @@
 -- name: C4424
 -- description: C\\#09b6ca\\4\\#baab16\\4\\#1a2ec4\\2\\#e93ee3\\4\n\\#dcdcdc\\By The C4424 Team\n\nEnough creepypastas, give me a comfortingpasta instead.\n\nComfortingpasta? Soothingpasta?...\n\n\nUnscarypasta?\n\nI don't know, just bring me back to the good old days.
 
-local sSavedSettings = {
+local sSavedSettings      = {
     bouncyLevelBounds = gServerSettings.bouncyLevelBounds,
     stayInLevelAfterStar = gServerSettings.stayInLevelAfterStar,
     skipIntro = gServerSettings.skipIntro,
@@ -14,20 +14,21 @@ local sSavedSettings = {
     respawnShellBoxes = gBehaviorValues.RespawnShellBoxes
 }
 
-local sWatermarkNames = {
+local sWatermarkNames     = {
     [WATERMARK_NONE] = "None",
     [WATERMARK_HYPERCAM] = "Hypercam",
     [WATERMARK_BANDICAM] = "Bandicam"
 }
 
-c4424Enabled     = not mod_storage_load_bool_2("c4424_enabled")
-c4424HideEmblems = mod_storage_load_bool_2("hide_emblems")
-c4424HideShadows = mod_storage_load_bool_2("hide_shadows")
-c4424PlayMusic   = mod_storage_load_bool_2("play_music")
-c4424ForceMario  = mod_storage_load_bool_2("force_mario")
-c4424Watermark   = if_then_else(mod_storage_exists("watermark"), mod_storage_load_number("watermark"), WATERMARK_HYPERCAM)
+c4424Enabled              = not mod_storage_load_bool_2("c4424_enabled")
+c4424HideEmblems          = mod_storage_load_bool_2("hide_emblems")
+c4424HideShadows          = mod_storage_load_bool_2("hide_shadows")
+c4424PlayMusic            = mod_storage_load_bool_2("play_music")
+c4424ForceMario           = mod_storage_load_bool_2("force_mario")
+c4424Watermark            = if_then_else(mod_storage_exists("watermark"), mod_storage_load_number("watermark"), WATERMARK_HYPERCAM)
+c4424ForceAspectRatio     = mod_storage_load_bool_2("force_aspect_ratio") -- Forces C4424's 4:3
 
-local shouldPlayMamaSound = true
+local shouldPlayMamaSound = true -- Forced ON for now
 
 -- Mod storage save function
 local function c4424_save()
@@ -37,6 +38,7 @@ local function c4424_save()
     mod_storage_save_bool("play_music", c4424PlayMusic)
     mod_storage_save_number("watermark", c4424Watermark)
     mod_storage_save_bool("force_mario", c4424ForceMario)
+    mod_storage_save_bool("force_aspect_ratio", c4424ForceAspectRatio)
 end
 
 local function toggle_c4424()
@@ -90,18 +92,19 @@ local function toggle_c4424()
         reset_window_title()
     end
 end
-toggle_c4424()
+--toggle_c4424()
 
 --- @param m MarioState
 local function mario_update(m)
     if not active_player(m) then return end
 
-    gNetworkPlayers[m.playerIndex].overrideModelIndex = if_then_else(c4424Enabled and c4424ForceMario, CT_MARIO, gNetworkPlayers[0].modelIndex)
+    gNetworkPlayers[m.playerIndex].overrideModelIndex = if_then_else(c4424Enabled and c4424ForceMario, CT_MARIO,
+        gNetworkPlayers[0].modelIndex)
 
     if not c4424Enabled then return end
 
-    --10% chance
-    if m.hurtCounter == 1 and math.random(1, 100) <= 10 and shouldPlayMamaSound then
+    --1% chance
+    if shouldPlayMamaSound and m.hurtCounter == 1 and math.random(1, 100) <= 1 then
         audio_sample_play(SOUND_CUSTOM_MAMA, m.pos, 1)
         shouldPlayMamaSound = false
     end
@@ -114,14 +117,16 @@ end
 local function on_hud_render()
     if not c4424Enabled then return end
 
-    djui_hud_set_resolution(RESOLUTION_N64)
+    if c4424ForceAspectRatio then
+        djui_hud_set_resolution(RESOLUTION_N64)
 
-    djui_hud_set_color(0, 0, 0, 255)
+        djui_hud_set_color(0, 0, 0, 255)
 
-    local width = djui_hud_get_screen_width() + 30
-    local height = djui_hud_get_screen_height()
-    djui_hud_render_rect(0, 0, width, 8)
-    djui_hud_render_rect(0, height - 8, width, 8)
+        local width = djui_hud_get_screen_width() + 30
+        local height = djui_hud_get_screen_height()
+        djui_hud_render_rect(0, 0, width, 8)
+        djui_hud_render_rect(0, height - 8, width, 8)
+    end
 
     djui_hud_set_resolution(RESOLUTION_DJUI)
 
@@ -180,6 +185,11 @@ local function on_set_force_mario()
     c4424_save()
 end
 
+local function on_set_force_aspect_ratio()
+    c4424ForceAspectRatio = not c4424ForceAspectRatio
+    c4424_save()
+end
+
 local function on_set_watermark(index, value)
     c4424Watermark = value
     if value == WATERMARK_NONE then
@@ -203,4 +213,6 @@ hook_mod_menu_checkbox("Hide Emblems", c4424HideEmblems, on_set_hide_emblems)
 hook_mod_menu_checkbox("Hide Shadows", c4424HideShadows, on_set_hide_shadows)
 hook_mod_menu_checkbox("Play Music", c4424PlayMusic, on_set_play_music)
 hook_mod_menu_checkbox("Force Mario", c4424ForceMario, on_set_force_mario)
-hook_mod_menu_slider("Watermark: " .. sWatermarkNames[c4424Watermark], c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM, on_set_watermark)
+hook_mod_menu_checkbox("Force Classic Aspect Ratio", c4424ForceAspectRatio, on_set_force_aspect_ratio)
+hook_mod_menu_slider("Watermark: " .. sWatermarkNames[c4424Watermark], c4424Watermark, WATERMARK_NONE, WATERMARK_BANDICAM,
+    on_set_watermark)

@@ -17,8 +17,8 @@ _G.c4424Api = {
         C4424_MUSIC("trance.mp3", 0.9, "Trance - 009 Sound System"),
         C4424_MUSIC("schemingweasel.mp3", 1.5, "Scheming Weasel - Kevin MacLeod"),
         C4424_MUSIC("monkeys.mp3", 1.0, "Monkeys Spinning Monkeys - Kevin MacLeod"),
-        C4424_MUSIC("scatman_skiba.mp3", 1.0, "Scatman (ski-ba-bop-ba-dop-bop) - Scatman John"),
-        C4424_MUSIC("scatmans_world.mp3", 1.0, "Scatman's World - Scatman John")
+        --C4424_MUSIC("scatman_skiba.mp3", 1.0, "Scatman (ski-ba-bop-ba-dop-bop) - Scatman John"),
+        --C4424_MUSIC("scatmans_world.mp3", 1.0, "Scatman's World - Scatman John")
     }
 }
 setmetatable(_G.c4424Api, sReadonlyMetatable)
